@@ -199,7 +199,7 @@ public class RestServer {
 
 	}
 
-	private final static ScheduledExecutorService SESPOOL = Executors.newScheduledThreadPool(2);
+	private final static ScheduledExecutorService SESPOOL = Executors.newScheduledThreadPool(3);
 	static {
 		SESPOOL.scheduleWithFixedDelay(() -> {
 			try {
@@ -207,14 +207,13 @@ public class RestServer {
 				for (ClientInfo client : CoordinateUtil.CLIENTS) {
 					if (client.getSession().isOpen()) {
 						client.getSession().getBasicRemote().sendPing(ByteBuffer.wrap("".getBytes()));
-						log.info("ping:{}", client.getSession().getId());
 					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				log.error("sendping:", e);
 			}
-		}, 11, 13, TimeUnit.SECONDS);
+		}, 13, 9, TimeUnit.SECONDS);
 
 	}
 
