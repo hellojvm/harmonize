@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>客户端列表</title>
+	<link th:replace="common/resource" />
+</head>
+
+<body>
+
+
+	<link th:replace="common/nav" />
+
+	<div class="container-fluid pb-3">
+		<div class="table-responsive">
+			<table class="table">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">IP</th>
+						<th scope="col">端口</th>
+						<th scope="col">contextPath</th>
+						<th scope="col">服务数量</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					<th:block th:each="h,vs:${cas}">
+						<tr
+							th:class="${vs.count % 8==1}?'table-primary':(${vs.count % 8==2}?'table-secondary':(${vs.count % 8==3}?'table-success':(${vs.count % 8==4}?'table-danger':(${vs.count % 8==5}?'table-warning':(${vs.count % 8==6}?'table-info':(${vs.count % 8==7}?'table-light':'table-dark'))))))">
+							<td th:text="${vs.count}"></td>
+							<td th:text="${h.ip}">
+
+							</td>
+							<td th:text="${h.port }">
+
+							</td>
+							<td th:text="${h.contextPath }">
+
+							</td>
+							<td th:text="${h.count}"></td>
+							<td><a th:href="@{/home/removeClient?sid=${h.sid}}" class="btn btn-danger">移除</a>
+							</td>
+						</tr>
+					</th:block>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+
+</body>
+
+</html>

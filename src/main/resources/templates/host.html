@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>主机列表</title>
+	<link th:replace="common/resource" />
+</head>
+
+<body>
+
+
+	<link th:replace="common/nav" />
+
+	<div class="container-fluid pb-3">
+
+		<div  class="col-3">
+			<form class="d-flex" method="post" action="/home/hostlist">
+					<input type="text" class="form-control" id="sname" name="sname"
+								placeholder="" autofocus="autofocus" th:value="${sname}"
+								autocomplete="off" maxlength="30">
+				<button class="btn btn-outline-success" type="submit">Search</button>
+			</form>
+		</div>
+		<div class="table-responsive">
+			<table class="table">
+				<thead>
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">IP</th>
+						<th scope="col">端口</th>
+						<th scope="col">contextPath</th>
+						<th scope="col">服务数量</th>
+						<th scope="col">服务名</th>
+						<th scope="col">请求方法</th>
+					</tr>
+				</thead>
+				<tbody>
+
+					<tr th:each="h,vs:${cas}"
+						th:class="${vs.count % 8==1}?'table-primary':(${vs.count % 8==2}?'table-secondary':(${vs.count % 8==3}?'table-success':(${vs.count % 8==4}?'table-danger':(${vs.count % 8==5}?'table-warning':(${vs.count % 8==6}?'table-info':(${vs.count % 8==7}?'table-light':'table-dark'))))))">
+						<td th:text="${vs.count}"></td>
+						<td th:text="${h.ip}">
+						</td>
+						<td th:text="${h.port }">
+						</td>
+						<td th:text="${h.contextPath }">
+						</td>
+						<td th:text="${h.count}"></td>
+						<td th:text="${h.name }">
+						</td>
+						<td th:text="${h.methods }">
+						</td>
+					</tr>
+
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+
+</body>
+
+</html>
