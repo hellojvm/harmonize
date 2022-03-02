@@ -15,11 +15,10 @@
 
 	<div class="container-fluid pb-3">
 
-		<div  class="col-3">
-			<form class="d-flex" method="post" action="/home/hostlist">
-					<input type="text" class="form-control" id="sname" name="sname"
-								placeholder="" autofocus="autofocus" th:value="${sname}"
-								autocomplete="off" maxlength="30">
+		<div class="col-3">
+			<form class="d-flex" method="post" th:action="@{/home/hostlist}">
+				<input type="text" class="form-control" id="sname" name="sname" placeholder="" autofocus="autofocus"
+					th:value="${sname}" autocomplete="off" maxlength="30">
 				<button class="btn btn-outline-success" type="submit">Search</button>
 			</form>
 		</div>

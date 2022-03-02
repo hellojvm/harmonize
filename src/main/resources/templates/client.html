@@ -41,7 +41,7 @@
 
 							</td>
 							<td th:text="${h.count}"></td>
-							<td><a th:href="@{/home/removeClient?sid=${h.sid}}" class="btn btn-danger">移除</a>
+							<td><a th:href="@{/home/removeClient(sid=${h.sid})}" class="btn btn-danger">移除</a>
 							</td>
 						</tr>
 					</th:block>
