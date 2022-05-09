@@ -38,7 +38,7 @@
 				<tbody>
 
 					<tr th:each="h,vs:${cas}"
-						th:class="${vs.count % 8==1}?'table-primary':(${vs.count % 8==2}?'table-secondary':(${vs.count % 8==3}?'table-success':(${vs.count % 8==4}?'table-danger':(${vs.count % 8==5}?'table-warning':(${vs.count % 8==6}?'table-info':(${vs.count % 8==7}?'table-light':'table-dark'))))))">
+						th:class="${vs.count % 8==1}?'table-primary':(${vs.count % 8==2}?'table-secondary':(${vs.count % 8==3}?'table-success':(${vs.count % 8==4}?'table-danger':(${vs.count % 8==5}?'table-warning':(${vs.count % 8==6}?'table-info':(${vs.count % 8==7}?'table-light':'table-success'))))))">
 						<td th:text="${vs.count}"></td>
 						<td th:text="${h.ip}">
 						</td>
