@@ -81,7 +81,7 @@ public class RestServer {
 				}
 				HttpApiInfo ha = CoordinateUtil.getHttpApiInfo(session);
 				if (ha != null) {
-					log.error(String.format("客户端%s出错", ha.getBaseUrl()), e);
+					log.error("客户端{}出错", ha.getBaseUrl());
 				}
 			} catch (Exception e1) {
 				e1.printStackTrace();
