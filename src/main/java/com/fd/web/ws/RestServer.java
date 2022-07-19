@@ -151,7 +151,10 @@ public class RestServer {
 							sendapis(session);
 							log.info(String.format("服务器%s上线", api.getHttpApiInfo().getBaseUrl()));
 						} else {
-							log.info(String.format("服务器%s下线", api.getHttpApiInfo().getBaseUrl()));
+							HttpApiInfo ha = CoordinateUtil.getHttpApiInfo(session);
+							if (ha != null) {
+								log.warn("服务器{}无法访问{},主动踢下线", ha.getBaseUrl(), api.getHttpApiInfo().getBaseUrl());
+							}
 							CoordinateUtil.CLIENTS.stream().filter(c -> c.getClientApi().equals(api)).forEach(c -> {
 								if (c.getSession().isOpen()) {
 									try {
