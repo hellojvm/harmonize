@@ -107,7 +107,7 @@ public class RestServer {
 							ite.remove();
 							ClientApi clientApi = disapicl.getClientApi();
 							clientApi.getHttpApiInfo().setIsOnline(false);
-//							sendapi(clientApi, session);///TODO 
+							sendapi(clientApi, session);
 							log.error(String.format("%s客户端销毁成功..", session.getId()));
 							log.error("还剩客户端总数量:{}", CoordinateUtil.CLIENTS.size());
 						}
@@ -214,7 +214,7 @@ public class RestServer {
 				e.printStackTrace();
 				log.error("sendping:", e);
 			}
-		}, 13, 9, TimeUnit.SECONDS);
+		}, 13, 39, TimeUnit.SECONDS);
 
 	}
 
