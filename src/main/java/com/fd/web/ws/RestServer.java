@@ -73,6 +73,7 @@ public class RestServer {
 
 	@OnError
 	public void error(Throwable e, Session session) {
+		log.error("error", e);
 		CoordinateUtil.STE.submit(() -> {
 			try {
 				if (session.isOpen()) {
@@ -84,7 +85,7 @@ public class RestServer {
 				}
 			} catch (Exception e1) {
 				e1.printStackTrace();
-				log.error("严重了。。。。。。。。。。。。。。", e);
+				log.error("严重了。。。。。。。。。。。。。。", e1);
 			}
 
 		});
