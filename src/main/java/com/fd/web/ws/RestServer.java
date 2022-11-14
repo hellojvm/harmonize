@@ -44,15 +44,16 @@ import com.fd.web.listener.WsServerListener;
 @ServerEndpoint(value = "/restcoordinate", configurator = RestServerConfigurator.class, decoders = {
 		RestCode.class }, encoders = { RestCode.class })
 public class RestServer {
-	private static Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	private final static Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 	private ReqInfo reqInfo;
 
 	@OnOpen
 	public void open(Session session, EndpointConfig config) {
-		int maxbufsize = session.getMaxBinaryMessageBufferSize() * 190;
+		int maxbufsize = session.getMaxBinaryMessageBufferSize() * 290;
 		session.setMaxBinaryMessageBufferSize(maxbufsize);
 		session.setMaxTextMessageBufferSize(maxbufsize);
 		this.reqInfo = (ReqInfo) config.getUserProperties().get(WsServerListener.REQ_INFO);
+		log.info("open:{}", reqInfo.getRemoteAddr());
 		sendapis(session);
 	}
 
@@ -63,8 +64,7 @@ public class RestServer {
 					try {
 						session.getBasicRemote().sendObject(ci.getClientApi());
 					} catch (Exception e) {
-						e.printStackTrace();
-						log.error("open", e);
+						log.error("sendapis", e);
 					}
 				}
 			}
@@ -74,7 +74,7 @@ public class RestServer {
 
 	@OnError
 	public void error(Throwable e, Session session) {
-		log.error("error", e);
+		log.error("error:{}", e, reqInfo.getRemoteAddr());
 		CoordinateUtil.STE.submit(() -> {
 			try {
 				if (session.isOpen()) {
@@ -85,7 +85,6 @@ public class RestServer {
 					log.error("客户端{}出错", ha.getBaseUrl());
 				}
 			} catch (Exception e1) {
-				e1.printStackTrace();
 				log.error("严重了。。。。。。。。。。。。。。", e1);
 			}
 
@@ -94,7 +93,8 @@ public class RestServer {
 
 	@OnClose
 	public void close(Session session, CloseReason cr) {
-		log.info("{},{},open={}", cr.getCloseCode(), cr.getReasonPhrase(), session.isOpen());
+		log.info("{}:{},{},open={}", reqInfo.getRemoteAddr(), cr.getCloseCode(), cr.getReasonPhrase(),
+				session.isOpen());
 		CoordinateUtil.STE.submit(() -> {
 			HttpApiInfo ha = CoordinateUtil.getHttpApiInfo(session);
 			if (ha != null) {
@@ -109,8 +109,8 @@ public class RestServer {
 							ClientApi clientApi = disapicl.getClientApi();
 							clientApi.getHttpApiInfo().setIsOnline(false);
 							sendapi(clientApi, session);
-							log.error(String.format("%s客户端销毁成功..", session.getId()));
-							log.error("还剩客户端总数量:{}", CoordinateUtil.CLIENTS.size());
+							log.info("{}:{}客户端销毁成功..", session.getId(), reqInfo.getRemoteAddr());
+							log.info("还剩客户端总数量:{}", CoordinateUtil.CLIENTS.size());
 						}
 					}
 				}
@@ -124,8 +124,8 @@ public class RestServer {
 	@OnMessage
 	public void handlerData(ClientApi api, Session session) {
 		CoordinateUtil.STE.submit(() -> {
-
 			try {
+				log.info("handlerData:req:: {}", MyJsonUtils.getJsonString(api));
 				if (api.getSync()) {
 					for (ApiInfo ai : api.getApis()) {
 						ApiInfo apiInfo = CoordinateUtil.getApiInfo(ai.getName(), ai.getMethod());
@@ -141,7 +141,7 @@ public class RestServer {
 
 				} else if (api.getHttpApiInfo() != null) {
 					if (api.getHttpApiInfo().getContextPath() != null) {
-						log.info(String.format("新增前，客户端总数量：%s", CoordinateUtil.CLIENTS.size()));
+						log.info("新增前，客户端总数量：{}", CoordinateUtil.CLIENTS.size());
 						if (api.getHttpApiInfo().getHost() == null
 								|| api.getHttpApiInfo().getHost().trim().length() < 4) {
 							api.getHttpApiInfo().setHost(reqInfo.getRemoteAddr());
@@ -150,19 +150,18 @@ public class RestServer {
 							ClientInfo curClient = new ClientInfo(api, session);
 							CoordinateUtil.CLIENTS.add(curClient);
 							sendapis(session);
-							log.info("服务器{}上线:{}", api.getHttpApiInfo().getBaseUrl(),
-									MyJsonUtils.getJsonString(api));
+							log.info("{} :注册成功。。。。", reqInfo.getRemoteAddr());
 						} else {
 							HttpApiInfo ha = CoordinateUtil.getHttpApiInfo(session);
 							if (ha != null) {
-								log.warn("服务器{}无法访问{},主动踢下线", ha.getBaseUrl(), api.getHttpApiInfo().getBaseUrl());
+								log.warn("{}:服务器{}无法访问{},主动踢下线", reqInfo.getRemoteAddr(), ha.getBaseUrl(),
+										api.getHttpApiInfo().getBaseUrl());
 							}
 							CoordinateUtil.CLIENTS.stream().filter(c -> c.getClientApi().equals(api)).forEach(c -> {
 								if (c.getSession().isOpen()) {
 									try {
 										c.getSession().close();
 									} catch (IOException e) {
-										e.printStackTrace();
 										log.error("", e);
 									}
 								}
@@ -170,16 +169,17 @@ public class RestServer {
 							CoordinateUtil.CLIENTS.remove(new ClientInfo(api));
 						}
 						sendapi(api, session);
-						log.info(String.format("添加完毕，当前客户端总数量：%s", CoordinateUtil.CLIENTS.size()));
+						log.info("添加完毕，当前客户端总数量：{}", CoordinateUtil.CLIENTS.size());
 					} else {
-						log.error(String.format("%s ContextPath is  null  ", api.getHttpApiInfo().getHost()));
+						log.error("{}:{} ContextPath is  null  ", api.getHttpApiInfo().getHost(),
+								reqInfo.getRemoteAddr());
 					}
 				} else {
-					log.error("非法请求...............................getHttpApiInfo is null .........");
+					log.error("{}:非法请求...............................getHttpApiInfo is null .........",
+							reqInfo.getRemoteAddr());
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
-				log.error("handlerData", e);
+				log.error("handlerData:{}", e, reqInfo.getRemoteAddr());
 			}
 
 		});
@@ -192,12 +192,11 @@ public class RestServer {
 				try {
 					HttpApiInfo ha = CoordinateUtil.getHttpApiInfo(se);
 					if (ha != null) {
-						log.info(String.format("发送给%s", ha.getBaseUrl()));
+						log.info("发送给:{}", ha.getBaseUrl());
 						se.getBasicRemote().sendObject(api);
 					}
 				} catch (Exception e) {
-					log.error(String.format("出现 错误%s", se.getId()), e);
-					e.printStackTrace();
+					log.error("sendapi 出现 错误{}", e, reqInfo.getRemoteAddr());
 				}
 			}
 
@@ -216,10 +215,9 @@ public class RestServer {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
 				log.error("sendping:", e);
 			}
-		}, 13, 39, TimeUnit.SECONDS);
+		}, 13, 19, TimeUnit.SECONDS);
 
 	}
 
