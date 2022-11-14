@@ -151,7 +151,7 @@ public class RestServer {
 							CoordinateUtil.CLIENTS.add(curClient);
 							sendapis(session);
 							log.info("服务器{}上线:{}", api.getHttpApiInfo().getBaseUrl(),
-									MyJsonUtils.getJsonString(curClient));
+									MyJsonUtils.getJsonString(api));
 						} else {
 							HttpApiInfo ha = CoordinateUtil.getHttpApiInfo(session);
 							if (ha != null) {
