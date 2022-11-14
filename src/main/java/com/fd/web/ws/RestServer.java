@@ -150,8 +150,8 @@ public class RestServer {
 							ClientInfo curClient = new ClientInfo(api, session);
 							CoordinateUtil.CLIENTS.add(curClient);
 							sendapis(session);
-							log.info(String.format("服务器{}上线:{}", api.getHttpApiInfo().getBaseUrl(),
-									MyJsonUtils.getJsonString(curClient)));
+							log.info("服务器{}上线:{}", api.getHttpApiInfo().getBaseUrl(),
+									MyJsonUtils.getJsonString(curClient));
 						} else {
 							HttpApiInfo ha = CoordinateUtil.getHttpApiInfo(session);
 							if (ha != null) {
