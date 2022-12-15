@@ -49,7 +49,7 @@ public class RestServer {
 
 	@OnOpen
 	public void open(Session session, EndpointConfig config) {
-		int maxbufsize = session.getMaxBinaryMessageBufferSize() * 290;
+		int maxbufsize = session.getMaxBinaryMessageBufferSize() * 990;
 		session.setMaxBinaryMessageBufferSize(maxbufsize);
 		session.setMaxTextMessageBufferSize(maxbufsize);
 		this.reqInfo = (ReqInfo) config.getUserProperties().get(WsServerListener.REQ_INFO);
@@ -74,7 +74,7 @@ public class RestServer {
 
 	@OnError
 	public void error(Throwable e, Session session) {
-		log.error("error:{}", e, reqInfo.getRemoteAddr());
+		log.error("error:{}", reqInfo.getRemoteAddr(), e);
 		CoordinateUtil.STE.submit(() -> {
 			try {
 				if (session.isOpen()) {
@@ -179,7 +179,7 @@ public class RestServer {
 							reqInfo.getRemoteAddr());
 				}
 			} catch (Exception e) {
-				log.error("handlerData:{}", e, reqInfo.getRemoteAddr());
+				log.error("handlerData:{}", reqInfo.getRemoteAddr(), e);
 			}
 
 		});
@@ -196,7 +196,7 @@ public class RestServer {
 						se.getBasicRemote().sendObject(api);
 					}
 				} catch (Exception e) {
-					log.error("sendapi 出现 错误{}", e, reqInfo.getRemoteAddr());
+					log.error("sendapi 出现 错误{}", reqInfo.getRemoteAddr(), e);
 				}
 			}
 
@@ -204,7 +204,7 @@ public class RestServer {
 
 	}
 
-	private final static ScheduledExecutorService SESPOOL = Executors.newScheduledThreadPool(3);
+	private final static ScheduledExecutorService SESPOOL = Executors.newScheduledThreadPool(2);
 	static {
 		SESPOOL.scheduleWithFixedDelay(() -> {
 			try {
@@ -217,7 +217,7 @@ public class RestServer {
 			} catch (Exception e) {
 				log.error("sendping:", e);
 			}
-		}, 13, 19, TimeUnit.SECONDS);
+		}, 21, 29, TimeUnit.SECONDS);
 
 	}
 
