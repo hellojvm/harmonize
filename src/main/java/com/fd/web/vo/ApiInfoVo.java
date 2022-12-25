@@ -5,20 +5,19 @@ public class ApiInfoVo {
 	private Integer port;
 	private Integer count;
 	private String name;
-	private String methods;
 	private String contextPath;
 	private String sid;
+
 	public String getIp() {
 		return ip;
 	}
 
-	public ApiInfoVo(String ip, Integer port, Integer count, String name, String methods, String contextPath) {
+	public ApiInfoVo(String ip, Integer port, Integer count, String name, String contextPath) {
 		super();
 		this.ip = ip;
 		this.port = port;
 		this.count = count;
 		this.name = name;
-		this.methods = methods;
 		this.contextPath = contextPath;
 	}
 
@@ -103,14 +102,6 @@ public class ApiInfoVo {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getMethods() {
-		return methods;
-	}
-
-	public void setMethods(String methods) {
-		this.methods = methods;
 	}
 
 	public String getContextPath() {
