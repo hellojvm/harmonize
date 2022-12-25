@@ -128,7 +128,7 @@ public class RestServer {
 				log.info("handlerData:req:: {}", MyJsonUtils.getJsonString(api));
 				if (api.getSync()) {
 					for (ApiInfo ai : api.getApis()) {
-						ApiInfo apiInfo = CoordinateUtil.getApiInfo(ai.getName(), ai.getMethod());
+						ApiInfo apiInfo = CoordinateUtil.getApiInfo(ai.getName());
 						Set<ClientApi> cas = CoordinateUtil.getCasByApiInfo(apiInfo,
 								CoordinateUtil.CLIENTS.stream().map(o -> o.getClientApi()).collect(Collectors.toSet()));
 						for (ClientApi ca : cas) {
