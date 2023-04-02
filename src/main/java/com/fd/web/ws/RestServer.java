@@ -163,9 +163,12 @@ public class RestServer {
 											.forEach(c -> {
 												if (c.getSession().isOpen()) {
 													try {
-														TimeUnit.SECONDS
-																.sleep(9 + ThreadLocalRandom.current().nextLong(10));
+														final long timeout = 9
+																+ ThreadLocalRandom.current().nextLong(10);
+														log.info("熔断：{}秒", timeout);
+														TimeUnit.SECONDS.sleep(timeout);
 														session.getBasicRemote().sendObject(c.getClientApi());
+														log.info("熔断结束");
 													} catch (Exception e) {
 														log.error("sendapis", e);
 													}
