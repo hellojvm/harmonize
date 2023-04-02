@@ -2,6 +2,8 @@ package com.fd.web.ws;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Set;
@@ -150,25 +152,33 @@ public class RestServer {
 							ClientInfo curClient = new ClientInfo(api, session);
 							CoordinateUtil.CLIENTS.add(curClient);
 							sendapis(session);
-							log.info("{} :注册成功。。。。", reqInfo.getRemoteAddr());
+							sendapi(api, session);
+							log.info("{} :注册成功。。。。:{}", reqInfo.getRemoteAddr(), api.getHttpApiInfo().getBaseUrl());
 						} else {
-							HttpApiInfo ha = CoordinateUtil.getHttpApiInfo(session);
-							if (ha != null) {
-								log.warn("{}:服务器{}无法访问{},主动踢下线", reqInfo.getRemoteAddr(), ha.getBaseUrl(),
-										api.getHttpApiInfo().getBaseUrl());
-							}
-							CoordinateUtil.CLIENTS.stream().filter(c -> c.getClientApi().equals(api)).forEach(c -> {
-								if (c.getSession().isOpen()) {
-									try {
-										c.getSession().close();
-									} catch (IOException e) {
-										log.error("", e);
-									}
+							try (Socket s = new Socket()) {
+								s.connect(new InetSocketAddress(api.getHttpApiInfo().getHost(),
+										api.getHttpApiInfo().getPort()), 1000);
+								s.close();
+							} catch (IOException e2) {
+								HttpApiInfo ha = CoordinateUtil.getHttpApiInfo(session);
+								if (ha != null) {
+									log.warn("{}:服务器{}无法访问{},主动踢下线", reqInfo.getRemoteAddr(), ha.getBaseUrl(),
+											api.getHttpApiInfo().getBaseUrl());
 								}
-							});
-							CoordinateUtil.CLIENTS.remove(new ClientInfo(api));
+								CoordinateUtil.CLIENTS.stream().filter(c -> c.getClientApi().equals(api)).forEach(c -> {
+									if (c.getSession().isOpen()) {
+										try {
+											c.getSession().close();
+										} catch (IOException e) {
+											log.error("", e);
+										}
+									}
+								});
+								CoordinateUtil.CLIENTS.remove(new ClientInfo(api));
+								sendapi(api, session);
+							}
 						}
-						sendapi(api, session);
+
 						log.info("添加完毕，当前客户端总数量：{}", CoordinateUtil.CLIENTS.size());
 					} else {
 						log.error("{}:{} ContextPath is  null  ", api.getHttpApiInfo().getHost(),
