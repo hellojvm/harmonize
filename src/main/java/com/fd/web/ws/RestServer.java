@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -101,25 +102,24 @@ public class RestServer {
 			HttpApiInfo ha = CoordinateUtil.getHttpApiInfo(session);
 			if (ha != null) {
 				log.error(String.format("客户端%s关闭连接..", ha.getBaseUrl()));
-				if (!cr.getCloseCode().equals(CloseCodes.UNEXPECTED_CONDITION)
-						&& !cr.getCloseCode().equals(CloseCodes.GOING_AWAY)) {
-					Iterator<ClientInfo> ite = CoordinateUtil.CLIENTS.iterator();
-					while (ite.hasNext()) {
-						ClientInfo disapicl = ite.next();
-						if (disapicl.getSession().getId().equals(session.getId())) {
-							ite.remove();
-							ClientApi clientApi = disapicl.getClientApi();
-							clientApi.getHttpApiInfo().setIsOnline(false);
-							sendapi(clientApi, session);
-							log.info("{}:{}客户端销毁成功..", session.getId(), reqInfo.getRemoteAddr());
-							log.info("还剩客户端总数量:{}", CoordinateUtil.CLIENTS.size());
-						}
-					}
-				}
 			} else {
 				log.error("CoordinateUtil.CLIENTS:" + CoordinateUtil.CLIENTS.size());
 			}
-
+			if (!cr.getCloseCode().equals(CloseCodes.UNEXPECTED_CONDITION)
+					&& !cr.getCloseCode().equals(CloseCodes.GOING_AWAY)) {
+				Iterator<ClientInfo> ite = CoordinateUtil.CLIENTS.iterator();
+				while (ite.hasNext()) {
+					ClientInfo disapicl = ite.next();
+					if (disapicl.getSession().getId().equals(session.getId())) {
+						ite.remove();
+						ClientApi clientApi = disapicl.getClientApi();
+						clientApi.getHttpApiInfo().setIsOnline(false);
+						sendapi(clientApi, session);
+						log.info("{}:{}客户端销毁成功..", session.getId(), reqInfo.getRemoteAddr());
+						log.info("还剩客户端总数量:{}", CoordinateUtil.CLIENTS.size());
+					}
+				}
+			}
 		});
 	}
 
@@ -158,6 +158,20 @@ public class RestServer {
 							try (Socket s = new Socket()) {
 								s.connect(new InetSocketAddress(api.getHttpApiInfo().getHost(),
 										api.getHttpApiInfo().getPort()), 1000);
+								CoordinateUtil.STE.submit(() -> {
+									CoordinateUtil.CLIENTS.stream().filter(c -> c.getClientApi().equals(api))
+											.forEach(c -> {
+												if (c.getSession().isOpen()) {
+													try {
+														TimeUnit.SECONDS
+																.sleep(9 + ThreadLocalRandom.current().nextLong(10));
+														session.getBasicRemote().sendObject(c.getClientApi());
+													} catch (Exception e) {
+														log.error("sendapis", e);
+													}
+												}
+											});
+								});
 								s.close();
 							} catch (IOException e2) {
 								HttpApiInfo ha = CoordinateUtil.getHttpApiInfo(session);
