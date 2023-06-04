@@ -236,14 +236,19 @@ public class RestServer {
 		SESPOOL.scheduleWithFixedDelay(() -> {
 			try {
 				log.info("CLIENTS:{}", CoordinateUtil.CLIENTS.size());
-				for (ClientInfo client : CoordinateUtil.CLIENTS) {
+				Iterator<ClientInfo> ite = CoordinateUtil.CLIENTS.iterator();
+				while (ite.hasNext()) {
+					ClientInfo client = ite.next();
 					if (client.getSession().isOpen()) {
 						client.getSession().getBasicRemote().sendPing(ByteBuffer.wrap("".getBytes()));
+					} else {
+						ite.remove();
 					}
 				}
 			} catch (Exception e) {
 				log.error("sendping:", e);
 			}
+			System.gc();
 		}, 21, 29, TimeUnit.SECONDS);
 
 	}
