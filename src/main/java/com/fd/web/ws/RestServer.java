@@ -44,7 +44,7 @@ import com.fd.web.listener.WsServerListener;
  *
  */
 @Component
-@ServerEndpoint(value = "/restcoordinate", configurator = RestServerConfigurator.class, decoders = {
+@ServerEndpoint(value = CoordinateUtil.SERVER_API, configurator = RestServerConfigurator.class, decoders = {
 		RestCode.class }, encoders = { RestCode.class })
 public class RestServer {
 	private final static Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
