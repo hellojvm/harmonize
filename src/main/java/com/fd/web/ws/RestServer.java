@@ -163,8 +163,8 @@ public class RestServer {
 											.forEach(c -> {
 												if (c.getSession().isOpen()) {
 													try {
-														final long timeout = 9
-																+ ThreadLocalRandom.current().nextLong(10);
+														final long timeout = 1
+																+ ThreadLocalRandom.current().nextLong(6);
 														log.info("熔断：{}秒", timeout);
 														TimeUnit.SECONDS.sleep(timeout);
 														session.getBasicRemote().sendObject(c.getClientApi());
