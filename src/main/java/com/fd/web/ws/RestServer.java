@@ -52,7 +52,7 @@ public class RestServer {
 
 	@OnOpen
 	public void open(Session session, EndpointConfig config) {
-		int maxbufsize = session.getMaxBinaryMessageBufferSize() * 600;
+		int maxbufsize = session.getMaxBinaryMessageBufferSize() * 300;
 		session.setMaxBinaryMessageBufferSize(maxbufsize);
 		session.setMaxTextMessageBufferSize(maxbufsize);
 		this.reqInfo = (ReqInfo) config.getUserProperties().get(WsServerListener.REQ_INFO);
